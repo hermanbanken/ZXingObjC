@@ -3,6 +3,8 @@
 #import "UIKit/UIColor.h"
 #import "Settings.h"
 
+#define bgQueue dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)
+
 @interface ViewController ()
 
 @property (nonatomic, strong) ZXCapture *capture;
@@ -11,6 +13,8 @@
 @property (weak, nonatomic) IBOutlet UITableView *scanList;
 @property (strong, nonatomic) NSMutableArray *scans;
 @property (strong, nonatomic) NSMutableArray *scan_dates;
+@property (strong, nonatomic) NSMutableArray *scan_states;
+@property NSUserDefaults *defaults;
 
 @end
 
@@ -25,15 +29,23 @@ NSDateFormatter *dateFormatter;
     self.title = @"Tickets";
     
     self.capture = [[ZXCapture alloc] init];
-    self.capture.focusMode = AVCaptureFocusModeContinuousAutoFocus;
+    self.capture.focusMode = AVCaptureFocusModeLocked;
     self.capture.rotation = 90.0f;
     self.capture.camera = self.capture.back;
     self.capture.reader = [[ZXEAN13Reader alloc] init];
     [self positionCapture];
     
+    self.defaults = [NSUserDefaults standardUserDefaults];
+    if([self.defaults objectForKey:@"uuid"] == nil){
+        [self.defaults setValue:[[NSUUID UUID] UUIDString] forKey:@"uuid"];
+        [self.defaults synchronize];
+    }
+    
     self.scans = [[NSMutableArray alloc] init];
     self.scan_dates = [[NSMutableArray alloc] init];
+    self.scan_states = [[NSMutableArray alloc] init];
     self.scanList.dataSource = self;
+    self.scanList.delegate = self;
         
     UIBarButtonItem *barDoneButton = [[UIBarButtonItem alloc] initWithTitle:@"Settings" style:UIBarButtonItemStylePlain target:self action:@selector(settings:)];
 
@@ -80,7 +92,8 @@ NSDateFormatter *dateFormatter;
 }
 
 - (IBAction)settings:(id)sender {
-    UIViewController * settings = [[Settings alloc] init];
+    Settings * settings = [[Settings alloc] init];
+    settings.defaults = self.defaults;
     if(self.navigationController.visibleViewController == self)
         [self.navigationController pushViewController:settings animated:TRUE];
 }
@@ -153,11 +166,14 @@ NSDateFormatter *dateFormatter;
        ![result.text isEqualToString:[self.scans lastObject]] ||
        [date timeIntervalSinceDate:[self.scan_dates lastObject]] > 2
     ){
-        // Add number
+        [self.scanList beginUpdates];
+        // Add number, time, state
         [self.scans addObject:result.text];
-        [self.scanList reloadData];
-        // Add time
         [self.scan_dates addObject:date];
+        [self.scan_states addObject:[NSNumber numberWithInt:STATE_ADDED]];
+        // Animate
+        [self.scanList insertRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:0 inSection:0]] withRowAnimation: UITableViewRowAnimationAutomatic];
+        [self.scanList endUpdates];
         
         // Vibrate
         AudioServicesPlaySystemSound(kSystemSoundID_Vibrate);
@@ -185,17 +201,95 @@ NSDateFormatter *dateFormatter;
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:CellIdentifer];
     }
     
-    NSUInteger row = [indexPath row];
+    NSUInteger row = self.scans.count - [indexPath row] - 1;
     cell.textLabel.text = [self.scans objectAtIndex:row];
     cell.detailTextLabel.text = [dateFormatter stringFromDate:[self.scan_dates objectAtIndex:row]];
     cell.accessoryType = UITableViewCellAccessoryDetailButton;
     
+    UIActivityIndicatorView* indicator;
+    switch([[self.scan_states objectAtIndex:row] intValue]){
+        case STATE_LOADING:
+            cell.backgroundColor = [UIColor redColor];
+            indicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
+            [cell.imageView addSubview:indicator];
+            break;
+        case STATE_OK:
+            cell.backgroundColor = [UIColor greenColor];
+            break;
+        case STATE_WARN:
+            cell.backgroundColor = [UIColor orangeColor];
+            break;
+        case STATE_ERROR:
+            cell.backgroundColor = [UIColor redColor];
+            break;
+        case STATE_LOADING_FAIL:
+            cell.backgroundColor = [UIColor blueColor];
+            break;
+    }
+    
+    if([[self.scan_states objectAtIndex:row] intValue] == STATE_ADDED){
+        [self.scan_states setObject:[NSNumber numberWithInt:STATE_LOADING] atIndexedSubscript:row];
+        NSURL * url = [self fill:[self.defaults objectForKey:@"action_url"] with:[self.scans objectAtIndex:row]];
+        
+        dispatch_async(bgQueue, ^{
+            NSError* error = nil;
+            NSData* data = [NSData dataWithContentsOfURL:url options: NSDataReadingUncached error:&error];
+            NSDictionary *json;
+            if(!error){
+                json = [NSJSONSerialization JSONObjectWithData:data options:kNilOptions error:&error];
+            }
+            dispatch_async(dispatch_get_main_queue(), ^{
+                if(error || [[json objectForKey:@"result"] objectForKey:@"state" ] == nil){
+                    [self.scan_states setObject:[NSNumber numberWithInt:STATE_LOADING_FAIL] atIndexedSubscript:row];
+                } else {
+                    switch([[[json objectForKey:@"result"] objectForKey:@"state" ] intValue]){
+                        case 1:
+                            [self.scan_states setObject:[NSNumber numberWithInt:STATE_OK] atIndexedSubscript:row];
+                            break;
+                        case 0:
+                            [self.scan_states setObject:[NSNumber numberWithInt:STATE_WARN] atIndexedSubscript:row];
+                            break;
+                        default:
+                            [self.scan_states setObject:[NSNumber numberWithInt:STATE_ERROR] atIndexedSubscript:row];
+                    }
+                }
+                if(indicator)
+                   [indicator removeFromSuperview];
+                [self.scanList reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
+            });
+        });
+    }
+    
     return cell;
 }
 
-- (BOOL)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    // Select checkin
-    return true;
+- (NSURL *)fill:(NSString *)urlString with:(NSNumber *)barcode {
+    NSError *error = nil;
+    NSString* action_url = urlString;
+    
+    NSRegularExpression *a = [NSRegularExpression regularExpressionWithPattern:@"\\[scan\\]" options:NSRegularExpressionCaseInsensitive error:&error];
+    NSRegularExpression *b = [NSRegularExpression regularExpressionWithPattern:@"\\[device\\]" options:NSRegularExpressionCaseInsensitive error:&error];
+    
+    action_url = [a stringByReplacingMatchesInString:action_url options:0 range:NSMakeRange(0, [action_url length]) withTemplate: [NSString stringWithFormat:@"%d", barcode.intValue]];
+    
+    action_url = [b stringByReplacingMatchesInString:action_url options:0 range:NSMakeRange(0, [action_url length]) withTemplate: [NSString stringWithFormat:@"%@", [self.defaults objectForKey:@"uuid"]]];
+    
+    return [NSURL URLWithString:action_url];
+
+}
+
+// Select checkin
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    NSUInteger row = self.scans.count - [indexPath row] - 1;
+    UIViewController *webViewController = [[UIViewController alloc] init];
+    
+    UIWebView *uiWebView = [[UIWebView alloc] initWithFrame: self.view.bounds];
+    NSURL * url = [self fill:[self.defaults objectForKey:@"details_url"] with:[self.scans objectAtIndex:row]];
+    [uiWebView loadRequest:[NSURLRequest requestWithURL:url]];
+    [webViewController.view addSubview: uiWebView];
+
+    [tableView deselectRowAtIndexPath:indexPath animated:true];
+    [self.navigationController pushViewController:webViewController animated:YES];
 }
 
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
