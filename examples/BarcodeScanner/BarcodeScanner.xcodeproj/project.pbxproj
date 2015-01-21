@@ -23,6 +23,7 @@
 		25404718166AC1D200E13304 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 25404717166AC1D200E13304 /* Default-568h@2x.png */; };
 		25404737166AC2EA00E13304 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 25404736166AC2EA00E13304 /* AVFoundation.framework */; };
 		25FFF6A61839839400C2E985 /* libZXingObjC-iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 25FFF69B1839837F00C2E985 /* libZXingObjC-iOS.a */; };
+		4ACFCB081A6FF83900FF2180 /* Settings.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ACFCB071A6FF83900FF2180 /* Settings.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -92,6 +93,8 @@
 		25404717166AC1D200E13304 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = SOURCE_ROOT; };
 		25404736166AC2EA00E13304 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		25FFF6921839837E00C2E985 /* ZXingObjC.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = ZXingObjC.xcodeproj; path = ../../ZXingObjC.xcodeproj; sourceTree = "<group>"; };
+		4ACFCB061A6FF82500FF2180 /* Settings.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Settings.h; sourceTree = SOURCE_ROOT; };
+		4ACFCB071A6FF83900FF2180 /* Settings.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Settings.m; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -152,6 +155,8 @@
 		024D10E5156EAB6F00FE6872 /* BarcodeScanner */ = {
 			isa = PBXGroup;
 			children = (
+				4ACFCB061A6FF82500FF2180 /* Settings.h */,
+				4ACFCB071A6FF83900FF2180 /* Settings.m */,
 				02C6AFDB156FCB660052B145 /* AppDelegate.h */,
 				02C6AFDC156FCB660052B145 /* AppDelegate.m */,
 				02C6AFD8156FCB4F0052B145 /* ViewController.h */,
@@ -297,6 +302,7 @@
 			files = (
 				02C6AFD7156FCB330052B145 /* main.m in Sources */,
 				02C6AFDA156FCB4F0052B145 /* ViewController.m in Sources */,
+				4ACFCB081A6FF83900FF2180 /* Settings.m in Sources */,
 				02C6AFDD156FCB660052B145 /* AppDelegate.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

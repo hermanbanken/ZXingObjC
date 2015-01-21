@@ -1,36 +1,69 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="5056" systemVersion="13C64" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="6254" systemVersion="14B25" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
-        <deployment defaultVersion="1296" identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="3733"/>
+        <deployment version="1536" identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6247"/>
+        <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
     </dependencies>
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="ViewController">
             <connections>
                 <outlet property="decodedLabel" destination="8" id="9"/>
+                <outlet property="scanList" destination="WZ1-tw-ua6" id="8L9-hH-FdD"/>
                 <outlet property="scanRectView" destination="Uhe-Ex-pCt" id="ojD-zm-r9G"/>
                 <outlet property="view" destination="6" id="7"/>
             </connections>
         </placeholder>
         <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
         <view clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="6">
-            <rect key="frame" x="0.0" y="0.0" width="320" height="480"/>
+            <rect key="frame" x="0.0" y="0.0" width="397" height="623"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
-                <view contentMode="scaleToFill" id="Uhe-Ex-pCt">
-                    <rect key="frame" x="30" y="105" width="260" height="260"/>
-                    <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMaxX="YES" flexibleMinY="YES" heightSizable="YES" flexibleMaxY="YES"/>
-                    <color key="backgroundColor" red="1" green="1" blue="1" alpha="0.29999999999999999" colorSpace="calibratedRGB"/>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Uhe-Ex-pCt">
+                    <rect key="frame" x="0.0" y="23" width="397" height="223"/>
+                    <subviews>
+                        <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Hold up to a barcode to scan" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" minimumFontSize="10" translatesAutoresizingMaskIntoConstraints="NO" id="8">
+                            <rect key="frame" x="84" y="155" width="230" height="48"/>
+                            <constraints>
+                                <constraint firstAttribute="height" constant="48" id="01y-HF-8GI"/>
+                            </constraints>
+                            <fontDescription key="fontDescription" type="boldSystem" pointSize="17"/>
+                            <color key="textColor" red="1" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                            <nil key="highlightedColor"/>
+                        </label>
+                    </subviews>
+                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                    <gestureRecognizers/>
+                    <constraints>
+                        <constraint firstAttribute="bottom" secondItem="8" secondAttribute="bottom" constant="20" id="Ff8-mq-uew"/>
+                        <constraint firstItem="8" firstAttribute="centerX" secondItem="Uhe-Ex-pCt" secondAttribute="centerX" id="LSu-vJ-G7K"/>
+                        <constraint firstAttribute="width" secondItem="Uhe-Ex-pCt" secondAttribute="height" multiplier="16:9" id="z4E-8k-dYW"/>
+                    </constraints>
                 </view>
-                <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Hold up to a barcode to scan" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" minimumFontSize="10" id="8">
-                    <rect key="frame" x="30" y="30" width="260" height="422"/>
-                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                    <fontDescription key="fontDescription" type="boldSystem" pointSize="17"/>
-                    <color key="textColor" red="1" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
-                    <nil key="highlightedColor"/>
-                </label>
+                <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" translatesAutoresizingMaskIntoConstraints="NO" id="WZ1-tw-ua6">
+                    <rect key="frame" x="0.0" y="246" width="397" height="377"/>
+                    <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                </tableView>
             </subviews>
-            <simulatedStatusBarMetrics key="simulatedStatusBarMetrics"/>
+            <constraints>
+                <constraint firstAttribute="trailing" secondItem="WZ1-tw-ua6" secondAttribute="trailing" id="68f-LL-dgO"/>
+                <constraint firstItem="WZ1-tw-ua6" firstAttribute="leading" secondItem="Uhe-Ex-pCt" secondAttribute="leading" id="DZh-eU-Le2"/>
+                <constraint firstItem="WZ1-tw-ua6" firstAttribute="top" secondItem="Uhe-Ex-pCt" secondAttribute="bottom" id="E29-15-9Vu"/>
+                <constraint firstItem="WZ1-tw-ua6" firstAttribute="leading" secondItem="6" secondAttribute="leading" id="GQw-Ad-MR4"/>
+                <constraint firstItem="WZ1-tw-ua6" firstAttribute="trailing" secondItem="Uhe-Ex-pCt" secondAttribute="trailing" id="SmG-aE-jfS"/>
+                <constraint firstAttribute="bottom" secondItem="WZ1-tw-ua6" secondAttribute="bottom" id="XHv-Kd-IXm"/>
+                <constraint firstAttribute="bottom" secondItem="WZ1-tw-ua6" secondAttribute="bottom" id="fYA-W4-Mk8"/>
+                <constraint firstItem="Uhe-Ex-pCt" firstAttribute="top" secondItem="6" secondAttribute="top" constant="23" id="lGg-ug-tSk"/>
+                <constraint firstItem="Uhe-Ex-pCt" firstAttribute="top" secondItem="6" secondAttribute="top" constant="23" id="rwJ-99-t3d"/>
+                <constraint firstAttribute="bottom" secondItem="WZ1-tw-ua6" secondAttribute="bottom" id="sdu-L2-eSz"/>
+            </constraints>
+            <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
+            <point key="canvasLocation" x="379.5" y="412.5"/>
         </view>
     </objects>
+    <simulatedMetricsContainer key="defaultSimulatedMetrics">
+        <simulatedStatusBarMetrics key="statusBar"/>
+        <simulatedOrientationMetrics key="orientation"/>
+        <simulatedScreenMetrics key="destination" type="retina4"/>
+    </simulatedMetricsContainer>
 </document>
